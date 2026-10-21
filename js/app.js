@@ -511,7 +511,7 @@
       '<button class="btn small" data-expand>Expand all</button>' +
       '<button class="btn small" data-collapse>Collapse all</button>' +
       '<span class="seg"><button data-zoom="1">\uFF0B</button><button data-zoom="-1">\uFF0D</button></span>' +
-      '<span class="pill" data-hint>Drag to pan \u00b7 scroll to zoom</span>' +
+      '<span class="pill" data-hint>Drag to pan \u00b7 scroll to zoom \u00b7 Fit for overview</span>' +
       '</div>' +
       '<div class="mmx" data-mmx>' +
       '<div class="mmx-viewport" data-vp>' +
@@ -603,6 +603,15 @@
       view.ty = (rh - L.h * view.s) / 2;
       apply();
     }
+    function fitWidth() {
+      var L = layout();
+      var rw = vp.clientWidth || 800;
+      view.s = Math.min((rw - 48) / L.w, 0.9);
+      view.s = Math.max(view.s, 0.35);
+      view.tx = (rw - L.w * view.s) / 2;
+      view.ty = 24;
+      apply();
+    }
     function zoomTo(newS, cx, cy) {
       var rw = vp.clientWidth, rh = vp.clientHeight;
       cx = cx == null ? rw / 2 : cx; cy = cy == null ? rh / 2 : cy;
@@ -632,11 +641,11 @@
     }, { passive: false });
 
     art.querySelector("[data-fit]").addEventListener("click", fit);
-    art.querySelector("[data-expand]").addEventListener("click", function () { root.collapsed = false; setAll(root, false); render(); setTimeout(fit, 0); });
+    art.querySelector("[data-expand]").addEventListener("click", function () { root.collapsed = false; setAll(root, false); render(); setTimeout(fitWidth, 0); });
     art.querySelector("[data-collapse]").addEventListener("click", function () {
       root.collapsed = false;
       root.children.forEach(function (ch) { ch.collapsed = true; setAll(ch, true); });
-      render(); setTimeout(fit, 0);
+      render(); setTimeout(fitWidth, 0);
     });
     art.querySelectorAll("[data-zoom]").forEach(function (b) {
       b.addEventListener("click", function () { zoomTo(view.s * (b.getAttribute("data-zoom") === "1" ? 1.25 : 0.8)); });
@@ -684,7 +693,7 @@
     }
 
     render();
-    setTimeout(fit, 30);
+    setTimeout(fitWidth, 30);
     if (window.BSIT.pendingNode) {
       var pend = window.BSIT.pendingNode; window.BSIT.pendingNode = null;
       setTimeout(function () {
